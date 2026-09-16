@@ -34,148 +34,58 @@
 // getUser()
 
 const loadUserButton = document.querySelector("#loadUser")
-const userCont = document.querySelector("#user")
 const moreButtons = document.querySelector("#moreButtons")
+const userCont = document.querySelector("#user")
+import { getUsers ,} from "./api.js"
+import { renderUsers } from "./render.js"
+import { sortAZ, sortZA , reverse , random , search} from "./usersRender.js"
 
 
 
-const url = "https://jsonplaceholder.typicode.com/users"
+loadUserButton.addEventListener("click" , async ()=>{
+    const users = await getUsers()
 
-async function getUser() {
+    renderUsers(users , userCont)
 
-    try {
-        const response = await fetch(url)
-
-        if(!response.ok){
-            throw new Error(`HTTP error: ${response.status}`);
-            
-        }
-        const user = await response.json()
-
-        const cardUsers = user.map((user)=>{
-            return `
-            <div>
-                <h2>${user.name}</h2>
-                <p>${user.username}</p>
-                <p>${user.email}</p>
-                <p>${user.address.city}</p>
-            </div>
-            `
-        })
-
-        userCont.innerHTML = cardUsers.join("")
-
-        moreButtons.innerHTML = 
-        `
+    moreButtons.innerHTML = 
+    `
+    <div>
+        <button id="SortA-Z">sort A - Z</button>
+        <button id="SortZ-A">sort Z - A</button>
+        <button id="Reverse">reverse</button>
+        <button id="Random">random</button>
         <div>
-            <button id="SortA-Z">sort A - Z</button>
-            <button id="SortZ-A">sort Z - A</button>
-            <button id="Reverse">reverse</button>
-            <button id="Random">random</button>
-            <div>
-                <input id="searchInput" placeholder="Search name...">
-                <button id="Search">search</button>
-            </div>
+            <input id="searchInput" placeholder="Search name...">
+            <button id="Search">search</button>
         </div>
+    </div>
 
-        `
-        const SortAZ = document.querySelector("#SortA-Z")
-        const SortZA = document.querySelector("#SortZ-A")
-        const Reverse = document.querySelector("#Reverse")
-        const Random = document.querySelector("#Random")
-        const searchInput = document.querySelector("#searchInput")
-        const Search = document.querySelector("#Search")
+    `
+    const SortAZ = document.querySelector("#SortA-Z")
+    const SortZA = document.querySelector("#SortZ-A")
+    const Reverse = document.querySelector("#Reverse")
+    const Random = document.querySelector("#Random")
+    const searchInput = document.querySelector("#searchInput")
+    const Search = document.querySelector("#Search")
 
-        SortAZ.addEventListener('click' , ()=>{
-            const userSortAZ = [...user].sort((a,b) => {
-                return a.name.localeCompare(b.name)
-            })
-            const cardUsersAfterSortAZ = userSortAZ.map((user)=>{
-                return `
-                    <div>
-                    <h2>${user.name}</h2>
-                        <p>${user.username}</p>
-                       <p>${user.email}</p>
-                       <p>${user.address.city}</p>
-                    </div>
-                    `
-                })
-            userCont.innerHTML = cardUsersAfterSortAZ.join("")
+    SortAZ.addEventListener('click' , ()=>{ renderUsers(sortAZ(users) , userCont) })
+    SortZA.addEventListener('click' , ()=>{renderUsers(sortZA(users) , userCont)})
+    Reverse.addEventListener('click' , ()=>{renderUsers(reverse(users) , userCont)})
+    Random.addEventListener('click' , ()=>{renderUsers(random(users) , userCont)})
+    Search.addEventListener('click' , ()=>{
+        const filteredUsers = search(users , searchInput.value)
+
+        if(filteredUsers.length === 0){
+            userCont.innerHTML = "user not found"
+            return
+        }
+            renderUsers(filteredUsers , userCont)
         })
-        SortZA.addEventListener('click' , ()=>{
-            const userSortZA = [...user].sort((a,b) => {
-                return b.name.localeCompare(a.name)
-            })
-            const cardUsersAfterSortZA = userSortZA.map((user)=>{
-                return `
-                    <div>
-                    <h2>${user.name}</h2>
-                        <p>${user.username}</p>
-                       <p>${user.email}</p>
-                       <p>${user.address.city}</p>
-                    </div>
-                    `
-                })
-            userCont.innerHTML = cardUsersAfterSortZA.join("")
-        })
-        Reverse.addEventListener('click' , ()=>{
-            const userReverse = [...user].reverse()
-            const cardUsersAfterReverse = userReverse.map((user)=>{
-                return `
-                    <div>
-                    <h2>${user.name}</h2>
-                        <p>${user.username}</p>
-                       <p>${user.email}</p>
-                       <p>${user.address.city}</p>
-                    </div>
-                    `
-                })
-            userCont.innerHTML = cardUsersAfterReverse.join("")
-        })
-        Random.addEventListener('click' , ()=>{
-            const userRandom = [...user].sort(() => Math.random() - 0.5)
-            const cardUsersAfterRandom = userRandom.map((user)=>{
-                return `
-                    <div>
-                    <h2>${user.name}</h2>
-                        <p>${user.username}</p>
-                       <p>${user.email}</p>
-                       <p>${user.address.city}</p>
-                    </div>
-                    `
-                })
-            userCont.innerHTML = cardUsersAfterRandom.join("")
-        })
-        Search.addEventListener('click' , ()=>{
-            const filterUserByName = user.filter((user) => {
-                return user.name.toLowerCase().includes(searchInput.value.toLowerCase())
-            })
-
-            if(filterUserByName.length === 0){
-                userCont.innerHTML = "user not found"
-                return
-            }
-
-            const cardUsersAfterFilterByName = filterUserByName.map((user)=>{
-                return `
-                    <div>
-                    <h2>${user.name}</h2>
-                        <p>${user.username}</p>
-                       <p>${user.email}</p>
-                       <p>${user.address.city}</p>
-                    </div>
-                    `
-                })
-            userCont.innerHTML = cardUsersAfterFilterByName.join("")
-        })
-
-        
+})
 
 
-    } catch (error) {
-        console.log(error.message)
-    }
-}
+// import { sum , multiply , subtract} from "./math(training).js"
 
-
-loadUserButton.addEventListener("click" , getUser)
+// console.log(sum(10,5))
+// console.log(subtract(10,5))
+// console.log(multiply(10,5))
